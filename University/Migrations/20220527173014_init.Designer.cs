@@ -12,8 +12,8 @@ using University.DataAccess;
 namespace University.Migrations
 {
     [DbContext(typeof(UniversityContext))]
-    [Migration("20220517113954_ChangeDateTimeToDateOnly")]
-    partial class ChangeDateTimeToDateOnly
+    [Migration("20220527173014_init")]
+    partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -37,9 +37,11 @@ namespace University.Migrations
                         .HasColumnType("date");
 
                     b.Property<string>("FirstName")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("LastName")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");

@@ -1,0 +1,214 @@
+﻿@page
+@model University.Pages.IndexModel
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+
+<h1>University</h1>
+<hr />
+
+<div id="app">
+
+    <div class="card border-primary">
+        <div class="card-header">
+            <span v-if="editMode">Edit Student</span>
+            <span v-else>Add New Student</span>
+            
+        </div>
+        <div class="card-body">
+            <input v-model="firstName" name="FirstName" placeholder="FirstName" class="form-control" />
+            <input v-model="lastName" name="LastName" placeholder="LastName" class="form-control" />
+            <input v-model="age" name="Age" placeholder="Age" class="form-control" />
+            <input v-model="birthDate" name="BirthDate" placeholder="BirthDate" type="date" class="form-control" />
+            <br />
+            <button class="btn btn-primary" v-on:click="addStudent" v-if="!editMode"> Add</button>
+            <button class="btn btn-secondary" v-on:click="updateStudent" v-if="editMode"> Update</button>
+            <button class="btn btn-outline-primary" v-on:click="cancelEditStudent" v-if="editMode"> Cancel</button>
+        </div>
+    </div>
+
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Age</th>
+            <th>BirthDate</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+            
+        <tr v-for="(item,index) in studentList">
+            <td>
+                {{index+1}}
+            </td>
+            <td>
+                {{item.firstName}}
+            </td>
+            <td> {{item.lastName}}</td>
+            <td> {{item.age}}</td>
+            <td> {{item.birthDate}}</td>
+            <td>
+                <button class="btn btn-danger" v-on:click="removeStudent(index,item)">Delete</button>
+                <button class="btn btn-primary" v-on:click="editStudent(index,item)">Edit</button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+</div>
+
+@section styles{ 
+    <link href="~/lib/toastr.js/toastr.css" rel="stylesheet" />
+}
+
+@section scripts{
+    <script src="~/lib/toastr.js/toastr.min.js"></script>
+    <script>
+
+        var app = new Vue({
+            el: "#app",
+            data: {
+                studentList: [],
+                firstName: "",
+                lastName: "",
+                age: null,
+                birthDate: null,
+                id: null,
+                index: null,
+                editMode:false
+            },
+            mounted: function () {
+                console.log("Mouted");
+                this.getStudentList();
+            },
+
+            methods: {
+                cancelEditStudent: function () {
+                    var vm = this;
+                    vm.editMode = false;
+                    vm.id = null;
+                    vm.firstName = "";
+                    vm.lastName = "";
+                    vm.age = null;
+                    vm.birthDate = null;
+                    vm.index = null;
+                },
+                updateStudent: function () {
+                    var vm = this;
+
+                    var selectedStudent = {
+                        id:vm.id,
+                        firstName: vm.firstName,
+                        lastName: vm.lastName,
+                        age: vm.age,
+                        birthDate: vm.birthDate
+                    }
+
+                    $.ajax({
+                        url: "/api/student",
+                        method: "PUT",
+                        contentType: "application/json",
+                        data: JSON.stringify(selectedStudent)
+                    }).done(function () {
+                        console.log("done");
+                        vm.studentList[vm.index].firstName = vm.firstName;
+                        vm.studentList[vm.index].lastName = vm.lastName;
+                        vm.studentList[vm.index].age = vm.age;
+                        vm.studentList[vm.index].birthDate = vm.birthDate;
+                        toastr.success("Student updated.");
+
+                    }).fail(function () {
+                        toastr.error("Error updating Student!");
+                    }).always(function () {
+                        vm.editMode = false;
+                        vm.firstName = "";
+                        vm.lastName = "";
+                        vm.age = null;
+                        vm.birthDate = null;
+                    });
+
+               
+                },
+                editStudent: function (index, selectedStudent) {
+                    var vm = this;
+                    vm.editMode = true;
+                    vm.id = selectedStudent.id;
+                    vm.firstName = selectedStudent.firstName;
+                    vm.lastName = selectedStudent.lastName;
+                    vm.age = selectedStudent.age;
+                    vm.birthDate = selectedStudent.birthDate;
+                    vm.index = index;
+                },
+                removeStudent: function (index,selectedStudent) {
+                    var vm = this;
+                    
+
+                    $.ajax({
+                        url: `/api/student/${selectedStudent.id}`,
+                        method: "DELETE",
+                        contentType: "application/json",                 
+                    }).done(function () {
+                        console.log("done");
+                        vm.studentList.splice(index, 1);
+                        toastr.success("Student removed.");
+
+                    }).fail(function () {
+                        toastr.error("Error removing Student!");
+                    });
+
+                },
+                addStudent: function () {
+                    var vm = this;
+
+                    var newStudent = {
+                        firstName: vm.firstName,
+                        lastName: vm.lastName,
+                        age: vm.age,
+                        birthDate: vm.birthDate
+                    }
+                    console.log(newStudent);
+                    $.ajax({
+                        url: "/api/student",
+                        method: "POST",
+                        contentType:"application/json",
+                        data: JSON.stringify(newStudent)
+                    }).done(function (result) {
+                        console.log("done");
+                        newStudent.id = result;
+                        vm.studentList.splice(0, 0, newStudent);  
+                        toastr.success("Student added.");
+
+                    }).fail(function () {
+                        toastr.error("Error!");
+                    }).always(function () {
+                        vm.firstName = "";
+                        vm.lastName = "";
+                        vm.age = null;
+                        vm.birthDate = null;
+                    });
+
+                
+                },
+                getStudentList: function () {
+                    console.log("Getting Student List");
+
+                    var vm = this;
+
+                    $.ajax({ url: "/api/student", method: "GET" })
+                        .done(function(data) {
+                            vm.studentList = data;
+                            console.table(data);
+                        });
+
+                }
+            }
+        });
+
+    </script>
+}

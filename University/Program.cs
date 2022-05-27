@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Http.Json;
 using Microsoft.EntityFrameworkCore;
+using University.Common;
 using University.DataAccess;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,6 +9,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddDbContext<UniversityContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("UniversityContext")));
+
+builder.Services.Configure<JsonOptions>(option => option.SerializerOptions.Converters.Add(new DateOnlyJsonConverter()));
 AppContext.SetSwitch("Switch.AmazingLib.ThrowOnException", true);
 
 var app = builder.Build();
@@ -29,5 +33,7 @@ app.UseRouting();
 app.UseAuthorization();
 
 app.MapRazorPages();
+
+app.MapControllers();
 
 app.Run();

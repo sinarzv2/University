@@ -1,7 +1,5 @@
-﻿using System.ComponentModel;
+﻿using Marten;
 using System.Linq.Expressions;
-using LamarCodeGeneration.Model;
-using Marten;
 using University.Persistent.IRepositories;
 
 namespace University.Persistent.Repositories
@@ -10,9 +8,9 @@ namespace University.Persistent.Repositories
     {
         private readonly IDocumentSession _session;
 
-        public Repository(IDocumentStore store)
+        public Repository(IDocumentSession session)
         {
-            _session = store.LightweightSession();
+            _session = session;
         }
 
 
@@ -65,24 +63,8 @@ namespace University.Persistent.Repositories
             return entity;
         }
 
-        public async Task CommitChanges(CancellationToken cancellationToken = default)
-        {
-            await _session.SaveChangesAsync(cancellationToken);
-        }
+      
 
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
 
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                _session.Dispose();
-            }
-
-        }
     }
 }

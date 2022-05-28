@@ -2,7 +2,7 @@
 
 namespace University.Persistent.IRepositories
 {
-    public interface IRepository<TEntity, in TKey> : IDisposable where TEntity : class 
+    public interface IRepository<TEntity, in TKey>  where TEntity : class 
     {
         Task AddAsync(TEntity entity, CancellationToken cancellationToken = default);
 
@@ -17,6 +17,6 @@ namespace University.Persistent.IRepositories
         Task<IReadOnlyList<TEntity>> Where(Expression<Func<TEntity, bool>> predicate,
             CancellationToken cancellationToken = default);
 
-        Task CommitChanges(CancellationToken cancellationToken = default);
+        
     }
 }

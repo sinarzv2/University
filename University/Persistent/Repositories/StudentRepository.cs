@@ -6,7 +6,7 @@ namespace University.Persistent.Repositories
 {
     public class StudentRepository : Repository<Student,Guid>, IStudentRepository
     {
-        public StudentRepository(IDocumentStore store) : base(store)
+        public StudentRepository(IDocumentSession session) : base(session)
         {
         }
     }

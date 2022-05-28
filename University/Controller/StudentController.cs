@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using University.Entities;
+using University.Persistent;
 using University.Persistent.IRepositories;
 
 namespace University.Controller
@@ -9,41 +10,41 @@ namespace University.Controller
     public class StudentController : ControllerBase
     {
 
-        private readonly IStudentRepository _studentRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public StudentController(IStudentRepository studentRepository)
+        public StudentController( IUnitOfWork unitOfWork)
         {
-            _studentRepository = studentRepository;
+            _unitOfWork = unitOfWork;
         }
 
         [HttpGet]
         public async Task<IActionResult> Get(CancellationToken cancellationToken)
         {
-            var studentList = await _studentRepository.GetAllAsync(cancellationToken);
+            var studentList = await _unitOfWork.StudentRepository.GetAllAsync(cancellationToken);
             return Ok(studentList);
         }
 
         [HttpPost]
         public async Task<IActionResult> Post(Student student, CancellationToken cancellationToken)
         {
-            await _studentRepository.AddAsync(student, cancellationToken);
-            await _studentRepository.CommitChanges(cancellationToken);
+            await _unitOfWork.StudentRepository.AddAsync(student, cancellationToken);
+            await _unitOfWork.CommitChanges(cancellationToken);
             return Ok(student.Id);
         }
 
         [HttpPut]
         public async Task<IActionResult> Put([FromBody] Student student, CancellationToken cancellationToken)
         {
-            await _studentRepository.UpdateAsync(student, cancellationToken);
-            await _studentRepository.CommitChanges(cancellationToken);
+            await _unitOfWork.StudentRepository.UpdateAsync(student, cancellationToken);
+            await _unitOfWork.CommitChanges(cancellationToken);
             return Ok();
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete([FromRoute] Guid id, CancellationToken cancellationToken)
         {
-            await _studentRepository.DeleteAsync(id, cancellationToken);
-            await _studentRepository.CommitChanges(cancellationToken);
+            await _unitOfWork.StudentRepository.DeleteAsync(id, cancellationToken);
+            await _unitOfWork.CommitChanges(cancellationToken);
             return Ok();
         }
     }

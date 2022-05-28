@@ -1,5 +1,6 @@
 using Marten;
 using Marten.Services.Json;
+using University.Persistent;
 using University.Persistent.IRepositories;
 using University.Persistent.Repositories;
 using Weasel.Core;
@@ -12,7 +13,7 @@ builder.Services.AddRazorPages();
 //    options.UseNpgsql(builder.Configuration.GetConnectionString("UniversityContext")));
 
 builder.Services.AddMarten(BuildStoreOptions()).UseLightweightSessions();
-builder.Services.AddScoped<IStudentRepository, StudentRepository>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

@@ -1,18 +1,18 @@
-using Microsoft.AspNetCore.Http.Json;
-using Microsoft.EntityFrameworkCore;
-using University.Common;
-using University.DataAccess;
+using Marten;
+using Marten.Services.Json;
+using University.Persistent.IRepositories;
+using University.Persistent.Repositories;
+using Weasel.Core;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
-builder.Services.AddDbContext<UniversityContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("UniversityContext")));
+//builder.Services.AddDbContext<UniversityContext>(options =>
+//    options.UseNpgsql(builder.Configuration.GetConnectionString("UniversityContext")));
 
-builder.Services.Configure<JsonOptions>(option => option.SerializerOptions.Converters.Add(new DateOnlyJsonConverter()));
-AppContext.SetSwitch("Switch.AmazingLib.ThrowOnException", true);
-
+builder.Services.AddMarten(BuildStoreOptions()).UseLightweightSessions();
+builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -37,3 +37,14 @@ app.MapRazorPages();
 app.MapControllers();
 
 app.Run();
+
+
+StoreOptions BuildStoreOptions()
+{
+    var connectionString = builder.Configuration.GetConnectionString("UniversityContext");
+    var storeOptions = new StoreOptions();
+    storeOptions.Connection(connectionString);
+    storeOptions.AutoCreateSchemaObjects = AutoCreate.All;
+    storeOptions.UseDefaultSerialization(serializerType:SerializerType.SystemTextJson);
+    return storeOptions;
+}

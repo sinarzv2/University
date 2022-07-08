@@ -1,8 +1,6 @@
 using Marten;
 using Marten.Services.Json;
 using University.Persistent;
-using University.Persistent.IRepositories;
-using University.Persistent.Repositories;
 using Weasel.Core;
 
 var builder = WebApplication.CreateBuilder(args);

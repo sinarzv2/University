@@ -1,0 +1,74 @@
+﻿@page
+@model University.Pages.IndexModel
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+
+<h1>University</h1>
+<hr />
+
+<div id="app">
+
+    <div class="card border-primary">
+        <div class="card-header">
+            <span v-if="editMode">Edit Student</span>
+            <span v-else>Add New Student</span>
+
+        </div>
+        <div class="card-body">
+            <input v-model="firstName" name="FirstName" placeholder="FirstName" class="form-control" />
+            <input v-model="lastName" name="LastName" placeholder="LastName" class="form-control" />
+            <input v-model="age" name="Age" placeholder="Age" class="form-control" />
+            <input v-model="birthDate" name="BirthDate" placeholder="BirthDate" type="date" class="form-control" />
+            <br />
+            <button class="btn btn-primary" v-on:click="addStudent" v-if="!editMode"> Add</button>
+            <button class="btn btn-secondary" v-on:click="updateStudent" v-if="editMode"> Update</button>
+            <button class="btn btn-outline-primary" v-on:click="cancelEditStudent" v-if="editMode"> Cancel</button>
+        </div>
+    </div>
+
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Age</th>
+                <th>BirthDate</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+
+            <tr v-for="(item,index) in studentList">
+                <td>
+                    {{index+1}}
+                </td>
+                <td>
+                    {{item.firstName}}
+                </td>
+                <td> {{item.lastName}}</td>
+                <td> {{item.age}}</td>
+                <td> {{item.birthDate}}</td>
+                <td>
+                    <button class="btn btn-danger" v-on:click="removeStudent(index,item)">Delete</button>
+                    <button class="btn btn-primary" v-on:click="editStudent(index,item)">Edit</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+</div>
+
+@section styles{
+    <link href="~/lib/toastr.js/toastr.css" rel="stylesheet" />
+}
+
+    @section scripts{
+    <script src="~/lib/toastr.js/toastr.min.js"></script>
+    <script src="~/js/Student/index.js"></script>
+   
+}

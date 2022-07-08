@@ -1,14 +1,17 @@
-using Microsoft.EntityFrameworkCore;
-using University.DataAccess;
+using Marten;
+using Marten.Services.Json;
+using University.Persistent;
+using Weasel.Core;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
-builder.Services.AddDbContext<UniversityContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("UniversityContext")));
-AppContext.SetSwitch("Switch.AmazingLib.ThrowOnException", true);
+//builder.Services.AddDbContext<UniversityContext>(options =>
+//    options.UseNpgsql(builder.Configuration.GetConnectionString("UniversityContext")));
 
+builder.Services.AddMarten(BuildStoreOptions()).UseLightweightSessions();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -30,4 +33,17 @@ app.UseAuthorization();
 
 app.MapRazorPages();
 
+app.MapControllers();
+
 app.Run();
+
+
+StoreOptions BuildStoreOptions()
+{
+    var connectionString = builder.Configuration.GetConnectionString("UniversityContext");
+    var storeOptions = new StoreOptions();
+    storeOptions.Connection(connectionString);
+    storeOptions.AutoCreateSchemaObjects = AutoCreate.All;
+    storeOptions.UseDefaultSerialization(serializerType:SerializerType.SystemTextJson);
+    return storeOptions;
+}

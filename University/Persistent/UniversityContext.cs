@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using University.Entities;
 
-namespace University.DataAccess
+namespace University.Persistent
 {
     public class UniversityContext : DbContext
     {
